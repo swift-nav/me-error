@@ -11,7 +11,7 @@ Requires
 ## Install
 1. `virtualenv venv -p python3`
 2. `source ./venv/bin/activate`
-3. TODO: install requirements.txt
+3. `pip install -r requirements.txt`
 
 ## Get data
 1. Authenticate with AWS
@@ -19,9 +19,16 @@ Requires
 3. `./src/get_ex_sbp.sh` and wait for the file to download (~44M)
 4. `./src/extract_msg74.sh` and wait ~5 sec for the conversion (~124M)
 
+## Plot example pseudoranges
+`python src/plot_obs.py`
+
 # Overview
 Parse ME output, specifically pseudoranges
 
 Learn state and error models
 
 For a drive, perturb ME output via state & error models
+
+# Notes
+## virtualenv
+`pip freeze > requirements.txt`
