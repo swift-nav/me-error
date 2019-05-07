@@ -2,7 +2,9 @@
 Stochastic Software In The Loop
 
 ## Requirements
-Built and tested on Mac OsX Mojave 10.14.3 (18D109) with Intel i7.
+Built and tested on Mac OsX Mojave 10.14.3 (18D109) with Intel i7.\\
+Using SBP 2.4.7
+
 Requires
 1. AWS CLI
 2. `virtualenv --version` 16.0.0
