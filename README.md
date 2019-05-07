@@ -11,6 +11,7 @@ Requires
 3. `python3 -V` Python 3.7.3
 
 ## Install
+0. `brew install graphviz`
 1. `virtualenv venv -p python3`
 2. `source ./venv/bin/activate`
 3. `pip install -r requirements.txt`

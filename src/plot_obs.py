@@ -3,15 +3,21 @@ import pdb
 import json
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 from pandas.io.json import json_normalize
-import dask.dataframe as dd # TODO read the json better
+import dask.dataframe as dd
+import dask.array as da
 import dask.bag as db
+from dask.diagnostics import ProgressBar
 import numpy as np
 import logging
 import time
 
 SUFFICIENT_LINES = 5*10**3
 TL = 'data/thousandlines.sbp.json'
+
+pbar = ProgressBar()
+pbar.register()
 
 # Construct filepath, ensure it's json
 DATADIR = 'data'
@@ -64,9 +70,7 @@ def load_data_some(log):
     return(df)
 
 def load_data_all(log):
-    log.debug("Starting load_data()")
-    cols = ['tow', 'sat', 'const', 'rng']
-    log.debug("Collecting columns: {}".format(cols))
+    log.debug("Starting load_data_all()")
 
     # Use Dask to load the nested JSON
     bag = db.read_text(FILEPATH).map(json.loads)
@@ -84,14 +88,58 @@ def load_data_all(log):
 
     return(df)
 
-def plot(log, df):
-    log.debug("Starting plot()")
+def plot_all(log, bag):
+    log.debug("Starting plot_all()")
+    st, cn = 19, 0
+    log.debug("Downfiltering to satelite {} const {}".format(st,cn))
+    df1 = bag.filter(
+            lambda r: (r['sat'] == st) & (r['const'] == cn)
+            ).pluck('rng')
+
+    # https://stackoverflow.com/questions/38086741/how-to-draw-a-histogram-in-dask
+    # df1.visualize(filename='computation_visualization.svg')
+    # pdb.set_trace()
+    # mx = df1.max().compute()
+    # mn = df1.min().compute()
+    # dld = bag.to_delayed()[0]
+    # da1 = da.from_delayed(
+    #         dld,
+    #         shape = (100,),
+    #         dtype = type(df1.take(1)[0])
+    #         # dtype = np.uint32
+    #         )
+
+    log.debug("Computing frequencies of pseudoranges...")
+    frq = df1.frequencies().compute()
+    log.debug("Plotting the pseudorange frequencies...")
+
+    fig = plt.figure()
+    ax = plt.subplot(111)
+
+    ax.scatter(*zip(*frq))
+    tit = 'Pseudorange counts for sat {} and const {}'.format(st, cn)
+    plt.title(tit)
+    plt.xlabel('Pseudorange (2cm)')
+    plt.ylabel('Count')
+    fig.savefig('plt1.png')
+
+    # df2 = df1.to_dataframe().compute()
+    # log.debug("Downfiltered! Starting plot...")
+    # fig, ax = plt.subplots()
+    # df3 = df2[1:100]
+    # n, bins, patches = ax.hist(df3)
+    # plt.show()
+
+def plot_some(log, df):
+    log.debug("Starting plot_some()")
     pdb.set_trace()
 
 # Main
 def main(log):
-    df = load_data_some(log)
-    plot(log, df)
+    df = load_data_all(log)
+    plot_all(log, df)
+    # df = load_data_some(log)
+    # plot_some(log, df)
 
 if __name__ == '__main__':
     # TODO commandline args
